@@ -117,8 +117,5 @@ def check_token():
             else:
                 return jsonify({'IsSuccess': False, 'Error': f'Token {tokenSQL['token']} expired'})
     return jsonify({'IsSuccess': False, 'Error': 'Token Not Recognized'}), 403
-        
-if __name__ == '__main__':
-    app.run(debug=True)
     
     
