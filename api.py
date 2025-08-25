@@ -131,6 +131,8 @@ def check_token():
                 con.commit()
                 return jsonify({'IsSuccess': True, 'Role': tokenSQL['role']})
             else:
+                con.execute('DELETE FROM tokens WHERE id = ?', (id,))
+                con.commit()
                 return jsonify({'IsSuccess': False, 'Error': f'Token {tokenSQL['token']} expired'})
     return jsonify({'IsSuccess': False, 'Error': 'Token Not Recognized'}), 403
     
