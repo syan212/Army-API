@@ -6,7 +6,7 @@ from uuid import UUID
 
 # Initiate app with CORS
 app = Flask(__name__)
-CORS(app, origins=['https://army-login.onrender.com/'])
+CORS(app, origins=['https://army-login.onrender.com'])
 
 # SQLite users connection
 def connect_users() -> tuple[Connection, Cursor]:
