@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import bcrypt, uuid, datetime, sqlite3, os
+import bcrypt, uuid, datetime, sqlite3, os, threading, requests, time
 from sqlite3 import Connection, Cursor
 from uuid import UUID
 
@@ -50,6 +50,22 @@ def create_token(role: str) -> str:
 def user_exists(username: str) -> bool:
     res = run_query('db/users.db', 'SELECT * FROM users WHERE name = ?', (username,))
     return not(res == list())
+
+# Ping function
+def ping():
+    while True:
+        try:
+            requests.get("https://army-api.onrender.com/health")
+        except:
+            pass
+        time.sleep(600)
+
+threading.Thread(target=ping, daemon=True).start()
+
+# Health Endpoint
+@app.route('/health', methods=['POST', 'GET'])
+def health():
+    return jsonify({'online', True})
 
 # Login route
 @app.route('/login', methods = ['POST'])
