@@ -65,7 +65,7 @@ threading.Thread(target=ping, daemon=True).start()
 # Health Endpoint
 @app.route('/health', methods=['POST', 'GET'])
 def health():
-    return jsonify({'online', True})
+    return jsonify({'online': True})
 
 # Login route
 @app.route('/login', methods = ['POST'])
