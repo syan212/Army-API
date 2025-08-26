@@ -1,8 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import bcrypt, uuid, datetime, sqlite3, os, threading, requests, time
 from sqlite3 import Connection, Cursor
-from uuid import UUID
+import bcrypt
+import uuid
+import datetime
+import sqlite3
+import threading
+import requests
+import time
+import flask
 
 # Initiate app with CORS
 app = Flask(__name__)
@@ -51,12 +57,17 @@ def user_exists(username: str) -> bool:
     res = run_query('db/users.db', 'SELECT * FROM users WHERE name = ?', (username,))
     return not(res == list())
 
+# Is String function
+def isString(string: str) -> None:
+    assert isinstance(string, str)
+
 # Ping function
 def ping():
     while True:
         try:
             requests.get("https://army-api.onrender.com/health")
-        except:
+        except Exception as e:
+            print(e)
             pass
         time.sleep(600)
 
@@ -70,8 +81,9 @@ def health():
 # Login route
 @app.route('/login', methods = ['POST'])
 def login():
+    # Test requests body type
+    request.get_json()
     # Get requests JSON
-    info = request.get_json()
     username: str = request.json.get('user')
     passw: str = request.json.get('password')
     # Logic
@@ -89,6 +101,8 @@ def login():
 
 @app.route('/register', methods = ['POST'])
 def register():
+    # Test requests body type
+    request.get_json()
     # Get requests JSON
     info = request.get_json()
     username: str = request.json.get('user')
