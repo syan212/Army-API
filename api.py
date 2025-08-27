@@ -8,7 +8,6 @@ import sqlite3
 import threading
 import requests
 import time
-import flask
 
 # Initiate app with CORS
 app = Flask(__name__)
@@ -104,7 +103,6 @@ def register():
     # Test requests body type
     request.get_json()
     # Get requests JSON
-    info = request.get_json()
     username: str = request.json.get('user')
     passw: str = request.json.get('password')
     user_class: str = request.json.get('class')
