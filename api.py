@@ -3,10 +3,12 @@ import sqlite3
 import threading
 import time
 import uuid
+from typing import Union, Any, Dict
 from sqlite3 import Connection, Cursor
 
 import bcrypt
 import requests
+import flask
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -29,7 +31,7 @@ def connect_tokens() -> tuple[Connection, Cursor]:
     return tokens_con, tokens_cur
 
 # SQL queries
-def run_query(db, query, params=()):
+def run_query(db: str, query: str, params: tuple = ()) -> list[Any]:
     with sqlite3.connect(db) as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -41,7 +43,7 @@ admin_passw = b'$2b$12$63yU9pT5PqmE.kfVbhiwVuDavrEB1g.9X17uY5N4tyKSJtm3cf66W' # 
 
 # Create Token
 def create_token(role: str) -> str:
-    token_con, token_cur = connect_tokens()
+    token_con, _ = connect_tokens()
     token = str(uuid.uuid4())
     with token_con as con:
         con.execute(F'''
@@ -57,9 +59,9 @@ def user_exists(username: str) -> bool:
     res = run_query('db/users.db', 'SELECT * FROM users WHERE name = ?', (username,))
     return not(res == list())
 
-# Is String function
-def isString(string: str) -> None:
-    assert isinstance(string, str)
+# Return True if any of the arguements are '' or None
+def AnyEmpty(*args: str) -> bool:
+    return any(arg in ('', None) for arg in args)
 
 # Ping function
 def ping():
@@ -80,12 +82,16 @@ def health():
 
 # Login route
 @app.route('/login', methods = ['POST'])
-def login():
+def login() -> Union[flask.Response, tuple[flask.Response, int]]:
     # Test requests body type
-    request.get_json()
+    json: Dict[str, str] = request.get_json()
+    if json is None:
+        return jsonify({'IsSuccess': False, 'Error': 'No JSON data sent'})
     # Get requests JSON
-    username: str = request.json.get('user')
-    passw: str = request.json.get('password')
+    username: str = json.get('user', '')
+    passw: str = json.get('password', '')
+    if AnyEmpty(username, passw):
+        return jsonify({'IsSuccess': False, 'Error': 'User or Password field missing'})
     # Logic
     if not (username and user_exists(username)):
         return jsonify({'IsSuccess': False, 'Error': "User doesn't exist"}), 404
@@ -100,14 +106,18 @@ def login():
             return jsonify({'IsSuccess': True, 'Message': f'User {username} authorised, type normal', 'Token': create_token('user')})
 
 @app.route('/register', methods = ['POST'])
-def register():
+def register() -> Union[flask.Response, tuple[flask.Response, int]]:
     # Test requests body type
-    request.get_json()
+    json: Dict[str, str] = request.get_json()
+    if json is None:
+        return jsonify({'IsSuccess': False, 'Error': 'No JSON data sent'})
     # Get requests JSON
-    username: str = request.json.get('user')
-    passw: str = request.json.get('password')
-    user_class: str = request.json.get('class')
-    register_passw: str = request.json.get('reg_password')
+    username: str = json.get('user', '')
+    passw: str = json.get('password', '')
+    user_class: str = json.get('class', '')
+    register_passw: str = json.get('reg_password', '')
+    if AnyEmpty(username, passw, user_class, register_passw):
+        return jsonify({'IsSuccess': False, 'Error': 'One or more field(s) missing'})
     # Logic
     if not bcrypt.checkpw(register_passw.encode(), admin_passw):
         return jsonify({'IsSuccess': False, 'Error': 'Unauthorised'}), 403
@@ -127,8 +137,14 @@ def register():
 
 @app.route('/check-token', methods=['POST'])
 def check_token():
+    # Test requests body type
+    json: Dict[str, str] = request.get_json()
+    if json is None:
+        return jsonify({'IsSuccess': False, 'Error': 'No JSON data sent'})
     # Get requests JSON
-    token: str = request.json.get('token')
+    token: str = json.get('token', '')
+    if AnyEmpty(token):
+        return jsonify({'IsSuccess': False, 'Error': 'Token Field missing'})
     # Check if token exists
     id = run_query('db/tokens.db', 'SELECT id FROM tokens WHERE token = ?', (token,))
     if id != list():
