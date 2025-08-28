@@ -26,5 +26,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "isort>=6.0.1",
     "ruff>=0.12.10",
 ]
