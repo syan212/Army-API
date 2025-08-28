@@ -4,3 +4,4 @@ Tokens.session.sql
 Users.session.sql
 army v0.22 BETA.pmp
 Army-API
+__pycache__
