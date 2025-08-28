@@ -1,13 +1,14 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from sqlite3 import Connection, Cursor
-import bcrypt
-import uuid
 import datetime
 import sqlite3
 import threading
-import requests
 import time
+import uuid
+from sqlite3 import Connection, Cursor
+
+import bcrypt
+import requests
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 # Initiate app with CORS
 app = Flask(__name__)
