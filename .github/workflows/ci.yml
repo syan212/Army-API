@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  ruff-and-gunicorn:
+  install-uv:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,11 +17,11 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-
+      
       - name: Install all dependencies
         run: |
           uv sync --dev --frozen
-
+          
       - name: Run ruff
         run: |
           uv run ruff check .
