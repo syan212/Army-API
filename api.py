@@ -3,12 +3,12 @@ import sqlite3
 import threading
 import time
 import uuid
-from typing import Union, Any, Dict
 from sqlite3 import Connection, Cursor
+from typing import Any, Dict, Union
 
 import bcrypt
-import requests
 import flask
+import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
