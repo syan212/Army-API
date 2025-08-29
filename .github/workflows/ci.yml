@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  install-uv:
+  Lint-and-test-server:
     runs-on: ubuntu-latest
 
     steps:
