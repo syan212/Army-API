@@ -46,11 +46,11 @@ def create_token(role: str) -> str:
     token_con, _ = connect_tokens()
     token = str(uuid.uuid4())
     with token_con as con:
-        con.execute(F'''
+        con.execute('''
         INSERT INTO tokens (token, expiry, role)
         VALUES
-            ("{token}", "{str(datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=15))}", "{role}")
-        ''')
+            (?, ?, ?)
+        ''', (token, str(datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=15)), role))
         con.commit()
     return token
 
@@ -67,7 +67,7 @@ def AnyEmpty(*args: str) -> bool:
 def ping():
     while True:
         try:
-            requests.get("https://army-api.onrender.com/health")
+            requests.get("https://army-api.onrender.com/health", timeout=10)
         except Exception as e:
             print(e)
             pass
@@ -127,11 +127,11 @@ def register() -> Union[flask.Response, tuple[flask.Response, int]]:
         # Register if the logic was succesful
         users_con, _ = connect_users()
         with users_con as con:
-            con.execute(f'''
+            con.execute('''
             INSERT INTO users(name, hashpw, role)
             VALUES
-                ("{username}", "{bcrypt.hashpw(passw.encode(), bcrypt.gensalt()).decode()}", "{user_class}")
-            ''')
+                (?, ?, ?)
+            ''', (username, bcrypt.hashpw(passw.encode(), bcrypt.gensalt()).decode(), user_class))
             con.commit()
         return jsonify({'IsSuccess': True, 'Message': f'User {username}, class {user_class}, registered'})
 
