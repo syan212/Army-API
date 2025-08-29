@@ -136,7 +136,7 @@ def register() -> Union[flask.Response, tuple[flask.Response, int]]:
         return jsonify({'IsSuccess': True, 'Message': f'User {username}, class {user_class}, registered'})
 
 @app.route('/check-token', methods=['POST'])
-def check_token():
+def check_token() -> Union[flask.Response, tuple[flask.Response, int]]:
     # Test requests body type
     json: Dict[str, str] = request.get_json()
     if json is None:
@@ -164,3 +164,51 @@ def check_token():
                 con.commit()
                 return jsonify({'IsSuccess': False, 'Error': f'Token {tokenSQL['token']} expired'})
     return jsonify({'IsSuccess': False, 'Error': 'Token Not Recognized'}), 403
+
+# Delete Token
+@app.route('/delete-token', methods=['POST'])
+def delete_token() -> Union[flask.Response, tuple[flask.Response, int]]:
+    # Test requests body type
+    json: Dict[str, str] = request.get_json()
+    if json is None:
+        return jsonify({'IsSuccess': False, 'Error': 'No JSON data sent'})
+    # Get requests JSON
+    token: str = json.get('token', '')
+    if AnyEmpty(token):
+        return jsonify({'IsSuccess': False, 'Error': 'Token field missing'})
+    # Confirm token exists
+    check_token: list[Any] = run_query('db/tokens.db', 'SELECT * FROM tokens WHERE token = ?', (token,))
+    if check_token == []:
+        return jsonify({'IsSuccess': False, 'Error': 'Token not found'})
+    # Delete token
+    token_con, _ = connect_tokens()
+    with token_con as con:
+        con.execute('''
+        DELETE FROM tokens WHERE token = ?
+        ''', (token,))
+        con.commit()
+        return jsonify({'IsSuccess': True, 'Message': f'Token {token} deleted'})
+
+# Delete user
+@app.route('/delete-user', methods=['POST'])
+def delete_user() -> Union[flask.Response, tuple[flask.Response, int]]:
+    # Test requests body type
+    json: Dict[str, str] = request.get_json()
+    if json is None:
+        return jsonify({'IsSuccess': False, 'Error': 'No JSON data sent'})
+    # Get requests JSON
+    user: str = json.get('user', '')
+    if AnyEmpty(user):
+        return jsonify({'IsSuccess': False, 'Error': 'User field missing'})
+    # Confirm user exists
+    check_user: list[Any] = run_query('db/users.db', 'SELECT * FROM users WHERE name = ?', (user,))
+    if check_user == []:
+        return jsonify({'IsSuccess': False, 'Error': 'User not found'})
+    # Delete user
+    user_con, _ = connect_users()
+    with user_con as con:
+        con.execute('''
+        DELETE FROM users WHERE name = ?
+        ''', (user,))
+        con.commit()
+        return jsonify({'IsSuccess': True, 'Message': f'User {user} deleted'})
