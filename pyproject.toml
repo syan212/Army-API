@@ -3,7 +3,7 @@ name = "army-api"
 version = "0.1.0"
 description = "This is a project for fun"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "bcrypt==4.3.0",
     "blinker==1.9.0",
@@ -28,7 +28,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.12.11",
+    "vermin>=1.6.0",
 ]
 
 [tool.ruff.lint]
 select = ["E","F","B","I","UP","SIM","S","ANN"]
+
+[tool.ruff.format]
+line-ending = "lf"
