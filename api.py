@@ -59,9 +59,9 @@ def create_token(role: str) -> str:
         """,
             (
                 token,
-                str(
+                (
                     datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=15)
-                ),
+                ).isoformat(),
                 role,
             ),
         )
