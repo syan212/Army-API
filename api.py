@@ -105,7 +105,7 @@ def ping() -> None:
             pass
         time.sleep(600)
 
-
+# Start ping thread
 threading.Thread(target=ping, daemon=True).start()
 
 
